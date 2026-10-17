@@ -2,6 +2,6 @@ version: 2
 secret:
   ignored_paths:
     # Test fixtures use fake passwords and tokens that trip the Generic Password detector
-    - "**/*.test.ts"
-    - "**/*.test.tsx"
-    - "e2e/**"
+    - '**/*.test.ts'
+    - '**/*.test.tsx'
+    - 'e2e/**'
