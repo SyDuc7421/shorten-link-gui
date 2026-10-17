@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
 
 concurrency:
@@ -12,6 +12,11 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # src/lib/env.ts fails the build without these. Public, non-secret values
+    # (inlined into the client bundle), matching .env.example.
+    env:
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_API_URL: http://localhost:8080
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
