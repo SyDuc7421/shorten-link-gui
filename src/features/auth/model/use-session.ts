@@ -1,6 +1,6 @@
 'use client';
 
-import { useSessionStore } from '../store';
+import { useSessionStore } from './session-store';
 
 export type SessionStatus = 'loading' | 'signedIn' | 'signedOut';
 

@@ -1,4 +1,9 @@
-import { render as rtlRender, type RenderOptions } from '@testing-library/react';
+import {
+  render as rtlRender,
+  renderHook as rtlRenderHook,
+  type RenderHookOptions,
+  type RenderOptions,
+} from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 
 import messages from '@messages/en.json';
@@ -15,6 +20,14 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 /** Use this instead of Testing Library's render — components need the intl provider. */
 export function render(ui: React.ReactElement, options?: Omit<RenderOptions, 'wrapper'>) {
   return rtlRender(ui, { wrapper: Wrapper, ...options });
+}
+
+/** `renderHook` with the intl provider — view-models translate their messages. */
+export function renderHook<Result, Props>(
+  hook: (props: Props) => Result,
+  options?: Omit<RenderHookOptions<Props>, 'wrapper'>,
+) {
+  return rtlRenderHook(hook, { wrapper: Wrapper, ...options });
 }
 
 export * from '@testing-library/react';

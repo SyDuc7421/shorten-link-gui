@@ -1,7 +1,7 @@
 import { http, HttpError } from '@/lib/http';
 
-import { useSessionStore } from '../store';
-import { tokenPairSchema } from '../types';
+import { useSessionStore } from './session-store';
+import { tokenPairSchema } from './types';
 
 type AuthedRequestOptions = Parameters<typeof http>[1];
 

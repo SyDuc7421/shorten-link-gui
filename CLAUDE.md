@@ -322,3 +322,19 @@ When starting a real project from this template:
 5. Add project-specific rules to the bottom of this file under
    `## Project rules` — leave the sections above intact so the template stays
    upgradeable.
+
+## Project rules
+
+### MVVM with hooks
+
+Features are split into Model, ViewModel and View — `src/features/README.md`
+has the layout and the per-layer rules. In short:
+
+- `model/` holds API hooks, schemas, stores and pure domain functions.
+- `view-models/use-<component>-view-model.ts` holds every `useState`,
+  `useEffect`, form and mutation call a component needs, and returns plain
+  values plus named actions.
+- `components/` render only. A component that needs state gets a view-model;
+  one that only reads `useSession` or renders static copy does not.
+- New view-models ship with a `renderHook` test; new pure Model functions ship
+  with a unit test.

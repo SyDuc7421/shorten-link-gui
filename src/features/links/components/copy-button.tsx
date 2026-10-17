@@ -1,15 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
-const COPIED_FEEDBACK_MS = 2000;
+import { useCopyButtonViewModel } from '../view-models/use-copy-button-view-model';
 
 interface CopyButtonProps {
   value: string;
@@ -25,22 +23,7 @@ interface CopyButtonProps {
 export function CopyButton({ value, appearance, variant = 'outline', className }: CopyButtonProps) {
   const t = useTranslations('common');
   const tLinks = useTranslations('links');
-  const [isCopied, setIsCopied] = useState(false);
-
-  useEffect(() => {
-    if (!isCopied) return;
-    const timeout = window.setTimeout(() => setIsCopied(false), COPIED_FEEDBACK_MS);
-    return () => window.clearTimeout(timeout);
-  }, [isCopied]);
-
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(value);
-      setIsCopied(true);
-    } catch {
-      toast.error(tLinks('copyFailed'));
-    }
-  }
+  const { isCopied, copy } = useCopyButtonViewModel(value);
 
   const label = isCopied ? t('copied') : t('copy');
   const icon = isCopied ? (
@@ -51,12 +34,7 @@ export function CopyButton({ value, appearance, variant = 'outline', className }
 
   if (appearance === 'labelled') {
     return (
-      <Button
-        type="button"
-        variant={variant}
-        className={cn('h-11', className)}
-        onClick={handleCopy}
-      >
+      <Button type="button" variant={variant} className={cn('h-11', className)} onClick={copy}>
         {icon}
         <span aria-live="polite">{label}</span>
       </Button>
@@ -70,7 +48,7 @@ export function CopyButton({ value, appearance, variant = 'outline', className }
           type="button"
           variant={variant}
           className={cn('h-11 lg:size-9 lg:px-0', className)}
-          onClick={handleCopy}
+          onClick={copy}
         >
           {icon}
           <span className="lg:sr-only" aria-live="polite">

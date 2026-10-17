@@ -1,11 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { CircleAlert, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -20,73 +16,25 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Link, useRouter } from '@/i18n/navigation';
-import { HttpError } from '@/lib/http';
+import { Link } from '@/i18n/navigation';
 
-import { useAuthMutation } from '../api/auth-api';
-import { useSession } from '../hooks/use-session';
-
-const PASSWORD_MIN = 8;
-const PASSWORD_MAX = 72;
+import { useAuthFormViewModel, type AuthMode } from '../view-models/use-auth-form-view-model';
 
 interface AuthFormProps {
-  mode: 'signIn' | 'register';
+  mode: AuthMode;
 }
 
 export function AuthForm({ mode }: AuthFormProps) {
   const t = useTranslations('auth');
-  const tValidation = useTranslations('validation');
-  const tErrors = useTranslations('errors');
-  const router = useRouter();
-  const { status } = useSession();
-  const mutation = useAuthMutation(mode);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const isRegister = mode === 'register';
-
-  const schema = z.object({
-    email: z.email(tValidation('email')),
-    password: isRegister
-      ? z
-          .string()
-          .min(PASSWORD_MIN, tValidation('minLength', { count: PASSWORD_MIN }))
-          .max(PASSWORD_MAX, tValidation('maxLength', { count: PASSWORD_MAX }))
-      : z.string().min(1, tValidation('required')),
-  });
-
-  const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
-    mode: 'onTouched',
-    defaultValues: { email: '', password: '' },
-  });
-
-  // Already signed in (or just signed in): this page has nothing left to do.
-  useEffect(() => {
-    if (status === 'signedIn') router.replace('/');
-  }, [status, router]);
-
-  function handleSubmit(values: z.infer<typeof schema>) {
-    form.clearErrors('root');
-    mutation.mutate(values, {
-      onError: (error) => {
-        if (!(error instanceof HttpError)) {
-          form.setError('root', { message: tErrors('network') });
-        } else if (error.status === 401) {
-          form.setError('root', { message: t('invalidCredentials') });
-        } else if (error.status === 409) {
-          form.setError('email', { message: t('emailTaken') }, { shouldFocus: true });
-        } else if (error.status === 400 && isRegister) {
-          form.setError('password', { message: t('weakPassword') }, { shouldFocus: true });
-        } else if (error.status === 429) {
-          form.setError('root', { message: t('tooManyAttempts') });
-        } else {
-          form.setError('root', { message: tErrors('server') });
-        }
-      },
-    });
-  }
-
-  const rootError = form.formState.errors.root?.message;
-  const isPending = mutation.isPending || mutation.isSuccess;
+  const {
+    form,
+    onSubmit,
+    isRegister,
+    isPending,
+    rootError,
+    isPasswordVisible,
+    togglePasswordVisible,
+  } = useAuthFormViewModel(mode);
 
   return (
     <Card className="w-full shadow-md">
@@ -102,12 +50,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
         <Form {...form}>
-          <form
-            method="post"
-            noValidate
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="flex flex-col gap-4"
-          >
+          <form method="post" noValidate onSubmit={onSubmit} className="flex flex-col gap-4">
             {rootError ? (
               <Alert variant="destructive">
                 <CircleAlert aria-hidden="true" />
@@ -157,7 +100,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                       className="absolute top-0 right-0 size-11"
                       aria-label={isPasswordVisible ? t('hidePassword') : t('showPassword')}
                       aria-pressed={isPasswordVisible}
-                      onClick={() => setIsPasswordVisible((visible) => !visible)}
+                      onClick={togglePasswordVisible}
                     >
                       {isPasswordVisible ? (
                         <EyeOff aria-hidden="true" />

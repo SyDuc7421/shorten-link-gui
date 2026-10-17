@@ -8,7 +8,7 @@ import {
 import { authedHttp } from '@/features/auth';
 import { HttpError } from '@/lib/http';
 
-import { linkPageSchema, shortenedLinkSchema, type LinkPage, type ShortenInput } from '../types';
+import { linkPageSchema, shortenedLinkSchema, type LinkPage, type ShortenInput } from './types';
 
 const linksKey = ['links'] as const;
 

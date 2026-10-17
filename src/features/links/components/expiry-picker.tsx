@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { CalendarDays, ChevronDown, Clock } from 'lucide-react';
-import { useFormatter, useNow, useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -10,10 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
-import { nowAsLocalDateTime } from '../lib/display-url';
-
-/** A picked date with no time yet lands on the end of that day. */
-const DEFAULT_TIME = '23:59';
+import { useExpiryPickerViewModel } from '../view-models/use-expiry-picker-view-model';
 
 interface ExpiryPickerProps extends Omit<
   React.ComponentProps<'button'>,
@@ -39,29 +35,12 @@ export function ExpiryPicker({
 }: ExpiryPickerProps) {
   const t = useTranslations('links');
   const format = useFormatter();
-  const now = useNow();
-  const [isOpen, setIsOpen] = useState(false);
-
-  const datePart = value.slice(0, 10);
-  const timePart = value.slice(11, 16);
-  const selected = datePart ? new Date(`${datePart}T00:00`) : undefined;
-  const today = new Date(`${nowAsLocalDateTime(now).slice(0, 10)}T00:00`);
-
-  function handleSelectDate(date: Date | undefined) {
-    if (!date) return;
-    onChange(`${nowAsLocalDateTime(date).slice(0, 10)}T${timePart || DEFAULT_TIME}`);
-    setIsOpen(false);
-  }
-
-  function handleTimeChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const time = event.target.value;
-    if (!time) return;
-    onChange(`${datePart || nowAsLocalDateTime(now).slice(0, 10)}T${time}`);
-  }
+  const { selected, time, today, isOpen, onOpenChange, selectDate, changeTime } =
+    useExpiryPickerViewModel({ value, onChange });
 
   return (
     <div className={cn('flex min-w-0 flex-1 flex-col gap-2 sm:flex-none sm:flex-row', className)}>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover open={isOpen} onOpenChange={onOpenChange}>
         <PopoverTrigger asChild>
           <Button
             type="button"
@@ -82,7 +61,7 @@ export function ExpiryPicker({
             mode="single"
             selected={selected}
             defaultMonth={selected}
-            onSelect={handleSelectDate}
+            onSelect={selectDate}
             disabled={{ before: today }}
             autoFocus
             className="p-2 [--cell-size:--spacing(11)] sm:p-3 sm:[--cell-size:--spacing(9)]"
@@ -98,8 +77,8 @@ export function ExpiryPicker({
         <Input
           type="time"
           aria-label={t('expiryTime')}
-          value={timePart}
-          onChange={handleTimeChange}
+          value={time}
+          onChange={(event) => changeTime(event.target.value)}
           onBlur={onBlur}
           className="h-11 appearance-none rounded-lg bg-background pl-9 tabular-nums [&::-webkit-calendar-picker-indicator]:hidden"
         />

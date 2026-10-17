@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
   CalendarClock,
   CircleAlert,
@@ -12,8 +10,6 @@ import {
   X,
 } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -28,86 +24,17 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { HttpError } from '@/lib/http';
 
-import { useShortenLink } from '../api/links-api';
-import { localDateTimeToRfc3339, toDisplayUrl } from '../lib/display-url';
-import type { ShortenedLink } from '../types';
+import { toDisplayUrl } from '../model/display-url';
+import type { ShortenedLink } from '../model/types';
+import { useShortenFormViewModel } from '../view-models/use-shorten-form-view-model';
 import { CopyButton } from './copy-button';
 import { ExpiryPicker } from './expiry-picker';
 
-function createSchema(t: ReturnType<typeof useTranslations<'links'>>) {
-  return z.object({
-    url: z
-      .string()
-      .trim()
-      .pipe(z.url({ protocol: /^https?$/, hostname: z.regexes.domain, error: t('invalidUrl') })),
-    expiresAt: z
-      .string()
-      .refine((value) => !value || new Date(value).getTime() > Date.now(), t('expiryInPast')),
-  });
-}
-
-type ShortenFormValues = z.output<ReturnType<typeof createSchema>>;
-
 export function ShortenForm() {
   const t = useTranslations('links');
-  const tErrors = useTranslations('errors');
-  const mutation = useShortenLink();
-  const [hasExpiry, setHasExpiry] = useState(false);
-  const [result, setResult] = useState<ShortenedLink | null>(null);
-
-  const schema = createSchema(t);
-
-  const form = useForm<z.input<typeof schema>, unknown, ShortenFormValues>({
-    resolver: zodResolver(schema),
-    mode: 'onTouched',
-    defaultValues: { url: '', expiresAt: '' },
-  });
-
-  function handleRemoveExpiry() {
-    setHasExpiry(false);
-    form.resetField('expiresAt');
-  }
-
-  function handleSubmit(values: ShortenFormValues) {
-    form.clearErrors('root');
-    const expiresAt =
-      hasExpiry && values.expiresAt ? localDateTimeToRfc3339(values.expiresAt) : null;
-
-    mutation.mutate(
-      { url: values.url, expiresAt },
-      {
-        onSuccess: (link) => {
-          setResult(link);
-          form.reset();
-          setHasExpiry(false);
-        },
-        onError: (error) => {
-          if (!(error instanceof HttpError)) {
-            form.setError('root', { message: tErrors('network') });
-            return;
-          }
-          const message = String(
-            (error.body as { error?: unknown } | null)?.error ?? '',
-          ).toLowerCase();
-          if (error.status === 400 && message.includes('expires_at')) {
-            form.setError('expiresAt', { message: t('expiryInPast') }, { shouldFocus: true });
-          } else if (error.status === 400) {
-            form.setError('url', { message: t('unresolvableUrl') }, { shouldFocus: true });
-          } else if (error.status === 422) {
-            form.setError('url', { message: t('forbiddenUrl') }, { shouldFocus: true });
-          } else if (error.status === 429) {
-            form.setError('root', { message: t('rateLimited') });
-          } else {
-            form.setError('root', { message: tErrors('server') });
-          }
-        },
-      },
-    );
-  }
-
-  const rootError = form.formState.errors.root?.message;
+  const { form, onSubmit, isPending, rootError, hasExpiry, addExpiry, removeExpiry, result } =
+    useShortenFormViewModel();
 
   return (
     <Card className="relative isolate gap-6 overflow-hidden shadow-md">
@@ -123,11 +50,7 @@ export function ShortenForm() {
 
       <CardContent className="flex flex-col gap-6">
         <Form {...form}>
-          <form
-            noValidate
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="flex flex-col gap-4"
-          >
+          <form noValidate onSubmit={onSubmit} className="flex flex-col gap-4">
             <FormField
               control={form.control}
               name="url"
@@ -156,11 +79,9 @@ export function ShortenForm() {
                       type="submit"
                       size="lg"
                       className="h-12 rounded-lg px-6 text-base shadow-sm sm:min-w-36"
-                      disabled={mutation.isPending}
+                      disabled={isPending}
                     >
-                      {mutation.isPending ? (
-                        <Loader2 className="animate-spin" aria-hidden="true" />
-                      ) : null}
+                      {isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
                       {t('submit')}
                     </Button>
                   </div>
@@ -176,7 +97,7 @@ export function ShortenForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('expiryLabel')}</FormLabel>
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-center gap-2">
                       <FormControl>
                         <ExpiryPicker {...field} />
                       </FormControl>
@@ -186,7 +107,7 @@ export function ShortenForm() {
                         size="icon"
                         className="size-11 md:size-9"
                         aria-label={t('removeExpiry')}
-                        onClick={handleRemoveExpiry}
+                        onClick={removeExpiry}
                       >
                         <X aria-hidden="true" />
                       </Button>
@@ -201,7 +122,7 @@ export function ShortenForm() {
                 type="button"
                 variant="ghost"
                 className="h-11 self-start text-muted-foreground md:h-9"
-                onClick={() => setHasExpiry(true)}
+                onClick={addExpiry}
               >
                 <CalendarClock aria-hidden="true" />
                 {t('addExpiry')}

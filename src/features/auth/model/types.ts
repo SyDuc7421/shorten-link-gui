@@ -5,6 +5,10 @@ export const tokenPairSchema = z.object({
   refresh_token: z.string().min(1),
 });
 
+/** Password length the API accepts on registration. */
+export const PASSWORD_MIN = 8;
+export const PASSWORD_MAX = 72;
+
 export type TokenPair = z.infer<typeof tokenPairSchema>;
 
 export interface Credentials {

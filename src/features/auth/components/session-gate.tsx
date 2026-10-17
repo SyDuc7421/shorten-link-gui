@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from '../hooks/use-session';
+import { useSession } from '../model/use-session';
 
 interface SessionGateProps {
   signedIn: React.ReactNode;

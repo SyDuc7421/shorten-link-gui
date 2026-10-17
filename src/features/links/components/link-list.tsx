@@ -1,8 +1,7 @@
 'use client';
 
-import { useRef } from 'react';
 import { Clock, CornerDownRight, Link2, Loader2, MousePointerClick } from 'lucide-react';
-import { useFormatter, useNow, useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 
 import { EmptyState } from '@/components/common/empty-state';
 import { ErrorState } from '@/components/common/error-state';
@@ -11,9 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
-import { useLinks } from '../api/links-api';
-import { toDisplayUrl } from '../lib/display-url';
-import type { Link } from '../types';
+import type { Link } from '../model/types';
+import { useLinkListViewModel } from '../view-models/use-link-list-view-model';
+import { useLinkRowViewModel } from '../view-models/use-link-row-view-model';
 import { CopyButton } from './copy-button';
 import { DeleteLinkDialog } from './delete-link-dialog';
 
@@ -21,24 +20,20 @@ const SKELETON_ROWS = ['a', 'b', 'c'];
 
 export function LinkList() {
   const t = useTranslations('links');
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const { data, status, refetch, fetchNextPage, hasNextPage, isFetchingNextPage, isRefetching } =
-    useLinks();
-
-  const links = data?.pages.flatMap((page) => page.links) ?? [];
+  const { state, headingRef, focusHeading } = useLinkListViewModel();
 
   let body: React.ReactNode;
-  if (status === 'pending') {
+  if (state.status === 'pending') {
     body = <LinkListSkeleton />;
-  } else if (status === 'error') {
+  } else if (state.status === 'error') {
     body = (
       <ErrorState
         title={t('loadErrorTitle')}
         description={t('loadErrorDescription')}
-        onRetry={() => void refetch()}
+        onRetry={state.retry}
       />
     );
-  } else if (links.length === 0) {
+  } else if (state.status === 'empty') {
     body = (
       <EmptyState
         icon={<Link2 className="size-5" aria-hidden="true" />}
@@ -53,22 +48,24 @@ export function LinkList() {
           aria-labelledby="links-heading"
           className={cn(
             'flex flex-col gap-3 transition-opacity duration-(--duration-base)',
-            isRefetching && !isFetchingNextPage && 'opacity-60',
+            state.isRefreshing && 'opacity-60',
           )}
         >
-          {links.map((link) => (
-            <LinkRow key={link.code} link={link} onDeleted={() => headingRef.current?.focus()} />
+          {state.links.map((link) => (
+            <LinkRow key={link.code} link={link} onDeleted={focusHeading} />
           ))}
         </ul>
-        {hasNextPage ? (
+        {state.hasNextPage ? (
           <Button
             type="button"
             variant="outline"
             className="h-11 self-center md:h-9"
-            disabled={isFetchingNextPage}
-            onClick={() => void fetchNextPage()}
+            disabled={state.isFetchingNextPage}
+            onClick={state.loadMore}
           >
-            {isFetchingNextPage ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
+            {state.isFetchingNextPage ? (
+              <Loader2 className="animate-spin" aria-hidden="true" />
+            ) : null}
             {t('loadMore')}
           </Button>
         ) : null}
@@ -87,11 +84,11 @@ export function LinkList() {
         >
           {t('listTitle')}
         </h2>
-        {status === 'success' && links.length > 0 ? (
+        {state.status === 'success' ? (
           <Badge variant="secondary" className="tabular-nums" aria-live="polite">
-            {hasNextPage
-              ? t('listCountMore', { count: links.length })
-              : t('listCount', { count: links.length })}
+            {state.hasNextPage
+              ? t('listCountMore', { count: state.links.length })
+              : t('listCount', { count: state.links.length })}
           </Badge>
         ) : null}
       </div>
@@ -103,9 +100,7 @@ export function LinkList() {
 function LinkRow({ link, onDeleted }: { link: Link; onDeleted: () => void }) {
   const t = useTranslations('links');
   const format = useFormatter();
-  const now = useNow();
-  const expiresAt = link.expires_at ? new Date(link.expires_at) : null;
-  const isExpired = expiresAt !== null && expiresAt <= now;
+  const { displayUrl, createdAt, expiresAt, isExpired } = useLinkRowViewModel(link);
 
   return (
     <li className="flex flex-col gap-3 rounded-xl border bg-card p-4 shadow-sm transition-[border-color,box-shadow] duration-(--duration-fast) hover:border-primary/30 hover:shadow-md lg:flex-row lg:items-center lg:gap-6">
@@ -130,7 +125,7 @@ function LinkRow({ link, onDeleted }: { link: Link; onDeleted: () => void }) {
               isExpired ? 'text-muted-foreground line-through' : 'text-primary',
             )}
           >
-            {toDisplayUrl(link.short_url)}
+            {displayUrl}
           </a>
           <p
             className="flex min-w-0 items-center gap-1 text-sm text-muted-foreground"
@@ -149,7 +144,7 @@ function LinkRow({ link, onDeleted }: { link: Link; onDeleted: () => void }) {
         </span>
         <span className="tabular-nums">
           {t('created', {
-            date: format.dateTime(new Date(link.created_at), { dateStyle: 'medium' }),
+            date: format.dateTime(createdAt, { dateStyle: 'medium' }),
           })}
         </span>
         {expiresAt ? (

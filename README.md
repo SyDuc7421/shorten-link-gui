@@ -90,7 +90,7 @@ src/
 │   ├── ui/                 # shadcn primitives (CLI-generated, treat as vendored)
 │   ├── common/             # composites: PageHeader, EmptyState, ErrorState, PermissionState
 │   └── layout/             # app shell: header, sidebar, footer
-├── features/               # one folder per capability, public API via index.ts
+├── features/               # one folder per capability (model/ view-models/ components/), public API via index.ts
 ├── hooks/                  # cross-feature hooks
 ├── lib/                    # utils, env validation, http client, query client
 ├── providers/              # the single root client boundary

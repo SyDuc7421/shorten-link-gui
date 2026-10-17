@@ -2,8 +2,8 @@ import { useMutation } from '@tanstack/react-query';
 
 import { http } from '@/lib/http';
 
-import { useSessionStore } from '../store';
-import { tokenPairSchema, type Credentials } from '../types';
+import { useSessionStore } from './session-store';
+import { tokenPairSchema, type Credentials } from './types';
 
 async function requestTokens(path: string, credentials: Credentials) {
   return tokenPairSchema.parse(await http<unknown>(path, { method: 'POST', body: credentials }));

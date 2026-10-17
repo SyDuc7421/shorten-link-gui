@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { CircleAlert, Loader2, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -18,9 +17,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-import { useDeleteLink } from '../api/links-api';
-import { toDisplayUrl } from '../lib/display-url';
-import type { Link } from '../types';
+import { toDisplayUrl } from '../model/display-url';
+import type { Link } from '../model/types';
+import { useDeleteLinkViewModel } from '../view-models/use-delete-link-view-model';
 
 interface DeleteLinkDialogProps {
   link: Link;
@@ -31,26 +30,13 @@ interface DeleteLinkDialogProps {
 export function DeleteLinkDialog({ link, onDeleted }: DeleteLinkDialogProps) {
   const t = useTranslations('links');
   const tCommon = useTranslations('common');
-  const [isOpen, setIsOpen] = useState(false);
-  const mutation = useDeleteLink();
-
-  function handleOpenChange(open: boolean) {
-    if (mutation.isPending) return;
-    if (!open) mutation.reset();
-    setIsOpen(open);
-  }
-
-  function handleConfirm() {
-    mutation.mutate(link.code, {
-      onSuccess: () => {
-        setIsOpen(false);
-        onDeleted();
-      },
-    });
-  }
+  const { isOpen, isPending, isError, onOpenChange, confirm } = useDeleteLinkViewModel(
+    link,
+    onDeleted,
+  );
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={handleOpenChange}>
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <Tooltip>
         <TooltipTrigger asChild>
           <AlertDialogTrigger asChild>
@@ -75,7 +61,7 @@ export function DeleteLinkDialog({ link, onDeleted }: DeleteLinkDialogProps) {
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        {mutation.isError ? (
+        {isError ? (
           <Alert variant="destructive">
             <CircleAlert aria-hidden="true" />
             <AlertDescription>{t('deleteFailed')}</AlertDescription>
@@ -83,7 +69,7 @@ export function DeleteLinkDialog({ link, onDeleted }: DeleteLinkDialogProps) {
         ) : null}
 
         <AlertDialogFooter>
-          <AlertDialogCancel className="h-11 md:h-9" disabled={mutation.isPending}>
+          <AlertDialogCancel className="h-11 md:h-9" disabled={isPending}>
             {tCommon('cancel')}
           </AlertDialogCancel>
           {/* A plain Button, not AlertDialogAction, so the dialog stays open until the delete lands. */}
@@ -91,10 +77,10 @@ export function DeleteLinkDialog({ link, onDeleted }: DeleteLinkDialogProps) {
             type="button"
             variant="destructive"
             className="h-11 md:h-9"
-            disabled={mutation.isPending}
-            onClick={handleConfirm}
+            disabled={isPending}
+            onClick={confirm}
           >
-            {mutation.isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
+            {isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
             {t('deleteConfirm')}
           </Button>
         </AlertDialogFooter>

@@ -15,7 +15,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link, useRouter } from '@/i18n/navigation';
 
-import { useSession } from '../hooks/use-session';
+import { useSession } from '../model/use-session';
 
 /** Header slot: sign-in links when signed out, the account menu when signed in. */
 export function AccountMenu() {
