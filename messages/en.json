@@ -127,6 +127,8 @@
     "addExpiry": "Add expiry date",
     "removeExpiry": "Remove expiry",
     "expiryLabel": "Expires on",
+    "pickDate": "Pick a date",
+    "expiryTime": "Expiry time",
     "expiryHint": "The link stops working after this time.",
     "resultTitle": "Your short link is ready",
     "resultExpires": "Expires {date}",

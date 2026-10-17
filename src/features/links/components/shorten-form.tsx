@@ -11,7 +11,7 @@ import {
   Loader2,
   X,
 } from 'lucide-react';
-import { useFormatter, useNow, useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -31,9 +31,10 @@ import { Input } from '@/components/ui/input';
 import { HttpError } from '@/lib/http';
 
 import { useShortenLink } from '../api/links-api';
-import { localDateTimeToRfc3339, nowAsLocalDateTime, toDisplayUrl } from '../lib/display-url';
+import { localDateTimeToRfc3339, toDisplayUrl } from '../lib/display-url';
 import type { ShortenedLink } from '../types';
 import { CopyButton } from './copy-button';
+import { ExpiryPicker } from './expiry-picker';
 
 function createSchema(t: ReturnType<typeof useTranslations<'links'>>) {
   return z.object({
@@ -57,7 +58,6 @@ export function ShortenForm() {
   const [result, setResult] = useState<ShortenedLink | null>(null);
 
   const schema = createSchema(t);
-  const now = useNow();
 
   const form = useForm<z.input<typeof schema>, unknown, ShortenFormValues>({
     resolver: zodResolver(schema),
@@ -176,14 +176,9 @@ export function ShortenForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('expiryLabel')}</FormLabel>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-start gap-2">
                       <FormControl>
-                        <Input
-                          type="datetime-local"
-                          min={nowAsLocalDateTime(now)}
-                          className="h-11 min-w-0 sm:max-w-64"
-                          {...field}
-                        />
+                        <ExpiryPicker {...field} />
                       </FormControl>
                       <Button
                         type="button"

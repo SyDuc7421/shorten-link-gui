@@ -57,7 +57,7 @@ export function DeleteLinkDialog({ link, onDeleted }: DeleteLinkDialogProps) {
             <Button
               type="button"
               variant="ghost"
-              className="h-11 text-muted-foreground hover:text-destructive lg:size-9 lg:px-0"
+              className="h-11 text-destructive hover:bg-destructive/10 hover:text-destructive focus-visible:ring-destructive/20 lg:size-9 lg:px-0 dark:hover:bg-destructive/20"
             >
               <Trash2 aria-hidden="true" />
               <span className="lg:sr-only">{tCommon('delete')}</span>
