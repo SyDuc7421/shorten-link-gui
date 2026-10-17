@@ -7,6 +7,7 @@ import {
   ExternalLink,
   Link2,
   Loader2,
+  PenLine,
   X,
 } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
@@ -28,13 +29,25 @@ import { Input } from '@/components/ui/input';
 import { toDisplayUrl } from '../model/display-url';
 import type { ShortenedLink } from '../model/types';
 import { useShortenFormViewModel } from '../view-models/use-shorten-form-view-model';
+import { AliasField } from './alias-field';
 import { CopyButton } from './copy-button';
 import { ExpiryPicker } from './expiry-picker';
 
 export function ShortenForm() {
   const t = useTranslations('links');
-  const { form, onSubmit, isPending, rootError, hasExpiry, addExpiry, removeExpiry, result } =
-    useShortenFormViewModel();
+  const {
+    form,
+    onSubmit,
+    isPending,
+    rootError,
+    hasAlias,
+    addAlias,
+    removeAlias,
+    hasExpiry,
+    addExpiry,
+    removeExpiry,
+    result,
+  } = useShortenFormViewModel();
 
   return (
     <Card className="relative isolate gap-6 overflow-hidden shadow-md">
@@ -90,6 +103,34 @@ export function ShortenForm() {
               )}
             />
 
+            {hasAlias ? (
+              <FormField
+                control={form.control}
+                name="alias"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('aliasLabel')}</FormLabel>
+                    <div className="flex items-start gap-2">
+                      <FormControl>
+                        <AliasField {...field} />
+                      </FormControl>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-11"
+                        aria-label={t('removeAlias')}
+                        onClick={removeAlias}
+                      >
+                        <X aria-hidden="true" />
+                      </Button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
+
             {hasExpiry ? (
               <FormField
                 control={form.control}
@@ -97,7 +138,7 @@ export function ShortenForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('expiryLabel')}</FormLabel>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-start gap-2">
                       <FormControl>
                         <ExpiryPicker {...field} />
                       </FormControl>
@@ -105,7 +146,7 @@ export function ShortenForm() {
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="size-11 md:size-9"
+                        className="size-11"
                         aria-label={t('removeExpiry')}
                         onClick={removeExpiry}
                       >
@@ -117,17 +158,34 @@ export function ShortenForm() {
                   </FormItem>
                 )}
               />
-            ) : (
-              <Button
-                type="button"
-                variant="ghost"
-                className="h-11 self-start text-muted-foreground md:h-9"
-                onClick={addExpiry}
-              >
-                <CalendarClock aria-hidden="true" />
-                {t('addExpiry')}
-              </Button>
-            )}
+            ) : null}
+
+            {!hasAlias || !hasExpiry ? (
+              <div className="flex flex-wrap gap-2">
+                {hasAlias ? null : (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="h-11 text-muted-foreground md:h-9"
+                    onClick={addAlias}
+                  >
+                    <PenLine aria-hidden="true" />
+                    {t('addAlias')}
+                  </Button>
+                )}
+                {hasExpiry ? null : (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="h-11 text-muted-foreground md:h-9"
+                    onClick={addExpiry}
+                  >
+                    <CalendarClock aria-hidden="true" />
+                    {t('addExpiry')}
+                  </Button>
+                )}
+              </div>
+            ) : null}
 
             {rootError ? (
               <Alert variant="destructive">

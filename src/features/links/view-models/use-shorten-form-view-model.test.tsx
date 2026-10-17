@@ -44,7 +44,11 @@ describe('useShortenFormViewModel', () => {
 
     const view = await submitUrl('https://example.com/page');
 
-    expect(mutate.mock.calls[0]?.[0]).toEqual({ url: 'https://example.com/page', expiresAt: null });
+    expect(mutate.mock.calls[0]?.[0]).toEqual({
+      url: 'https://example.com/page',
+      alias: null,
+      expiresAt: null,
+    });
     expect(view.result.current.result).toEqual(link);
     expect(view.result.current.form.getValues('url')).toBe('');
   });
@@ -77,5 +81,49 @@ describe('useShortenFormViewModel', () => {
     mutate.mockImplementationOnce((_input, options) => options.onError?.(new TypeError('offline')));
     await act(() => view.result.current.onSubmit());
     expect(view.result.current.rootError).toBe(messages.errors.network);
+  });
+
+  it('sends the alias only while the alias field is shown', async () => {
+    const view = renderHook(() => useShortenFormViewModel());
+    act(() => {
+      view.result.current.form.setValue('url', 'https://example.com');
+      view.result.current.form.setValue('alias', 'Sale-2026');
+    });
+    await act(() => view.result.current.onSubmit());
+    expect(mutate.mock.calls[0]?.[0].alias).toBeNull();
+
+    act(() => view.result.current.addAlias());
+    await act(() => view.result.current.onSubmit());
+    expect(mutate.mock.calls[1]?.[0].alias).toBe('Sale-2026');
+  });
+
+  it('rejects a reserved alias before calling the API', async () => {
+    const view = renderHook(() => useShortenFormViewModel());
+    act(() => {
+      view.result.current.addAlias();
+      view.result.current.form.setValue('url', 'https://example.com');
+      view.result.current.form.setValue('alias', 'API');
+    });
+    await act(() => view.result.current.onSubmit());
+
+    expect(mutate).not.toHaveBeenCalled();
+    expect(view.result.current.form.formState.errors.alias?.message).toBe(
+      messages.links.aliasReserved.replace('{alias}', 'API'),
+    );
+  });
+
+  it('puts a taken alias on the alias field', async () => {
+    mutate.mockImplementation((_input, options) => options.onError?.(new HttpError(409, {})));
+    const view = renderHook(() => useShortenFormViewModel());
+    act(() => {
+      view.result.current.addAlias();
+      view.result.current.form.setValue('url', 'https://example.com');
+      view.result.current.form.setValue('alias', 'taken1');
+    });
+    await act(() => view.result.current.onSubmit());
+
+    expect(view.result.current.form.formState.errors.alias?.message).toBe(
+      messages.links.aliasTaken.replace('{alias}', 'taken1'),
+    );
   });
 });

@@ -1,6 +1,7 @@
 import {
   useInfiniteQuery,
   useMutation,
+  useQuery,
   useQueryClient,
   type InfiniteData,
 } from '@tanstack/react-query';
@@ -8,9 +9,16 @@ import {
 import { authedHttp } from '@/features/auth';
 import { HttpError } from '@/lib/http';
 
-import { linkPageSchema, shortenedLinkSchema, type LinkPage, type ShortenInput } from './types';
+import {
+  aliasAvailabilitySchema,
+  linkPageSchema,
+  shortenedLinkSchema,
+  type LinkPage,
+  type ShortenInput,
+} from './types';
 
 const linksKey = ['links'] as const;
+const aliasKey = [...linksKey, 'alias'] as const;
 
 export function useLinks() {
   return useInfiniteQuery({
@@ -28,14 +36,36 @@ export function useShortenLink() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ url, expiresAt }: ShortenInput) =>
+    mutationFn: async ({ url, alias, expiresAt }: ShortenInput) =>
       shortenedLinkSchema.parse(
         await authedHttp<unknown>('/api/links', {
           method: 'POST',
-          body: { url, expires_at: expiresAt },
+          body: { url, expires_at: expiresAt, ...(alias ? { alias } : {}) },
         }),
       ),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: linksKey }),
+    onSuccess: () => {
+      // A cached "available" may now be wrong; drop it rather than refetch it.
+      queryClient.removeQueries({ queryKey: aliasKey });
+      return queryClient.invalidateQueries({ queryKey: linksKey, exact: true });
+    },
+  });
+}
+
+/**
+ * Whether `alias` is free. Creating a link clears every cached answer.
+ * The API limits this to 60/min per IP — callers debounce and only ask about
+ * aliases that pass `getAliasProblem`.
+ */
+export function useAliasAvailability(alias: string, isEnabled: boolean) {
+  return useQuery({
+    queryKey: [...aliasKey, alias],
+    queryFn: async () =>
+      aliasAvailabilitySchema.parse(
+        await authedHttp<unknown>(`/api/links/availability?alias=${encodeURIComponent(alias)}`),
+      ),
+    enabled: isEnabled,
+    staleTime: 30_000,
+    retry: false,
   });
 }
 

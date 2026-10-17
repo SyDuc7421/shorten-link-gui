@@ -39,13 +39,13 @@ export function ExpiryPicker({
     useExpiryPickerViewModel({ value, onChange });
 
   return (
-    <div className={cn('flex min-w-0 flex-1 flex-col gap-2 sm:flex-none sm:flex-row', className)}>
+    <div className={cn('flex min-w-0 flex-1 flex-col gap-2 sm:max-w-md sm:flex-row', className)}>
       <Popover open={isOpen} onOpenChange={onOpenChange}>
         <PopoverTrigger asChild>
           <Button
             type="button"
             variant="outline"
-            className="h-11 min-w-0 justify-start rounded-lg font-normal sm:w-60"
+            className="h-11 min-w-0 justify-start rounded-lg font-normal sm:flex-1"
             onBlur={onBlur}
             {...triggerProps}
           >

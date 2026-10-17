@@ -15,6 +15,14 @@ describe('toShortenFailure', () => {
       { field: 'url', reason: 'unresolvableUrl' },
     ],
     [new HttpError(400, null), { field: 'url', reason: 'unresolvableUrl' }],
+    [
+      new HttpError(400, { error: 'alias must be 3-16 characters of A-Z, a-z, 0-9, _ or -' }),
+      { field: 'alias', reason: 'aliasInvalid' },
+    ],
+    [
+      new HttpError(409, { error: 'alias already taken' }),
+      { field: 'alias', reason: 'aliasTaken' },
+    ],
     [new HttpError(422, {}), { field: 'url', reason: 'forbiddenUrl' }],
     [new HttpError(429, {}), { field: 'root', reason: 'rateLimited' }],
     [new HttpError(500, {}), { field: 'root', reason: 'server' }],
