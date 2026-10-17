@@ -11,7 +11,7 @@ const VIEWPORTS = [
 ] as const;
 
 /** Routes to check. Add every page that ships. */
-const ROUTES = ['/', '/login', '/register'];
+const ROUTES = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
 
 async function horizontalOverflow(page: Page) {
   return page.evaluate(() => {

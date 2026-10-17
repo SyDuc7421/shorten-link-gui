@@ -1,6 +1,6 @@
 'use client';
 
-import { CircleAlert, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { CircleAlert, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Link } from '@/i18n/navigation';
 
 import { useAuthFormViewModel, type AuthMode } from '../view-models/use-auth-form-view-model';
+import { PasswordInput } from './password-input';
 
 interface AuthFormProps {
   mode: AuthMode;
@@ -83,32 +84,25 @@ export function AuthForm({ mode }: AuthFormProps) {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('password')}</FormLabel>
-                  <div className="relative">
-                    <FormControl>
-                      <Input
-                        type={isPasswordVisible ? 'text' : 'password'}
-                        autoComplete={isRegister ? 'new-password' : 'current-password'}
-                        className="h-11 pr-12"
-                        {...field}
-                      />
-                    </FormControl>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-0 right-0 size-11"
-                      aria-label={isPasswordVisible ? t('hidePassword') : t('showPassword')}
-                      aria-pressed={isPasswordVisible}
-                      onClick={togglePasswordVisible}
-                    >
-                      {isPasswordVisible ? (
-                        <EyeOff aria-hidden="true" />
-                      ) : (
-                        <Eye aria-hidden="true" />
-                      )}
-                    </Button>
+                  <div className="flex items-center justify-between gap-4">
+                    <FormLabel>{t('password')}</FormLabel>
+                    {isRegister ? null : (
+                      <Link
+                        href="/forgot-password"
+                        className="-my-3 inline-flex min-h-11 items-center rounded-md text-sm font-medium text-primary underline-offset-4 hover:underline"
+                      >
+                        {t('forgotPasswordLink')}
+                      </Link>
+                    )}
                   </div>
+                  <FormControl>
+                    <PasswordInput
+                      autoComplete={isRegister ? 'new-password' : 'current-password'}
+                      isVisible={isPasswordVisible}
+                      onToggleVisible={togglePasswordVisible}
+                      {...field}
+                    />
+                  </FormControl>
                   {isRegister ? <FormDescription>{t('passwordHint')}</FormDescription> : null}
                   <FormMessage />
                 </FormItem>

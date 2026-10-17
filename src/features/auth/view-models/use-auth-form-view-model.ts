@@ -10,15 +10,16 @@ import { useRouter } from '@/i18n/navigation';
 
 import { useAuthMutation } from '../model/auth-api';
 import { toAuthFailure } from '../model/auth-errors';
-import { PASSWORD_MAX, PASSWORD_MIN } from '../model/types';
+import { isPasswordWithinMax, PASSWORD_MIN } from '../model/types';
 import { useSession } from '../model/use-session';
+import { useAuthErrorMessage } from './use-auth-error-message';
 
 export type AuthMode = 'signIn' | 'register';
 
 export function useAuthFormViewModel(mode: AuthMode) {
   const t = useTranslations('auth');
   const tValidation = useTranslations('validation');
-  const tErrors = useTranslations('errors');
+  const errorMessage = useAuthErrorMessage();
   const router = useRouter();
   const { status } = useSession();
   const mutation = useAuthMutation(mode);
@@ -31,7 +32,7 @@ export function useAuthFormViewModel(mode: AuthMode) {
       ? z
           .string()
           .min(PASSWORD_MIN, tValidation('minLength', { count: PASSWORD_MIN }))
-          .max(PASSWORD_MAX, tValidation('maxLength', { count: PASSWORD_MAX }))
+          .refine(isPasswordWithinMax, t('passwordTooLong'))
       : z.string().min(1, tValidation('required')),
   });
   type AuthFormValues = z.infer<typeof schema>;
@@ -54,9 +55,9 @@ export function useAuthFormViewModel(mode: AuthMode) {
         const failure = toAuthFailure(error, mode);
         if (failure.field === 'root') {
           const message =
-            failure.reason === 'network' || failure.reason === 'server'
-              ? tErrors(failure.reason)
-              : t(failure.reason);
+            failure.reason === 'invalidCredentials'
+              ? t('invalidCredentials')
+              : errorMessage(failure.reason);
           form.setError('root', { message });
         } else {
           form.setError(failure.field, { message: t(failure.reason) }, { shouldFocus: true });
