@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { MousePointerClick } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 
@@ -20,7 +21,6 @@ import { cn } from '@/lib/utils';
 
 import { STATS_RANGES, type AdminStats, type StatsRange } from '../model/types';
 import { useAdminDashboardViewModel } from '../view-models/use-admin-dashboard-view-model';
-import { DailyChart } from './daily-chart';
 import {
   StackedTable,
   StackedTableBody,
@@ -29,6 +29,13 @@ import {
   StackedTableHeader,
   StackedTableRow,
 } from './stacked-table';
+
+// recharts is large and only this screen needs it. The header imports the admin
+// feature for its menu entry, so a static import would ship it on every page.
+const DailyChart = dynamic(() => import('./daily-chart').then((module) => module.DailyChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-56 rounded-xl" />,
+});
 
 export function AdminDashboard({ days }: { days: StatsRange }) {
   const t = useTranslations('admin.dashboard');
