@@ -103,6 +103,22 @@ e2e/                        # Playwright specs
 Placement rule: **if only one feature uses it, it lives in that feature.**
 Promote to shared on the second consumer, not before.
 
+## Admin area
+
+Signed-in users whose account has `role = 'admin'` (granted on the API server
+with `server admin grant <email>`) see **Admin** in the account menu.
+
+| Route               | Content                                                              |
+| ------------------- | -------------------------------------------------------------------- |
+| `/admin`            | Totals, daily new users / links / clicks (7, 30, 90 days), top links |
+| `/admin/users`      | Search and filter users                                              |
+| `/admin/users/[id]` | Account details, daily quota, disable / enable, the user's links     |
+| `/admin/links`      | Search and filter all links; disable, enable, delete                 |
+| `/admin/audit`      | Every admin action, filterable by target and by admin                |
+
+The API decides who is an admin on every request; the GUI's gate
+(`features/admin/components/admin-gate.tsx`) only decides what to render.
+
 ## UI components
 
 ```bash
