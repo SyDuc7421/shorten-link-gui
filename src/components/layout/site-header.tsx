@@ -1,6 +1,7 @@
 import { Link2 } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
+import { AdminMenuItem } from '@/features/admin';
 import { AccountMenu } from '@/features/auth';
 import { Link } from '@/i18n/navigation';
 
@@ -19,7 +20,7 @@ export async function SiteHeader() {
           </span>
           {t('appName')}
         </Link>
-        <AccountMenu />
+        <AccountMenu items={<AdminMenuItem />} />
       </div>
     </header>
   );
