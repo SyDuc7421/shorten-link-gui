@@ -123,7 +123,7 @@ export function AdminLinksTable({ heading, query }: AdminLinksTableProps) {
                   <LinkStatusBadge status={status} />
                 </StackedTableCell>
                 <StackedTableCell className="border-t pt-3 md:border-0 md:pt-2">
-                  <LinkRowActions link={link} onDeleted={focusHeading} />
+                  <LinkRowActions link={link} onDone={focusHeading} />
                 </StackedTableCell>
               </StackedTableRow>
             ))}
@@ -137,7 +137,16 @@ export function AdminLinksTable({ heading, query }: AdminLinksTableProps) {
 const ROW_BUTTON = 'h-11 flex-1 sm:flex-none lg:size-9 lg:px-0';
 
 /** ≤2 row actions → icon buttons with tooltips; labels stay visible below lg (DESIGN.md §14, §21). */
-function LinkRowActions({ link, onDeleted }: { link: AdminLink; onDeleted: () => void }) {
+interface LinkRowActionsProps {
+  link: AdminLink;
+  /**
+   * After any row action. Delete removes the row, and disable/enable can move
+   * it out of a status filter, so focus goes somewhere that still exists.
+   */
+  onDone: () => void;
+}
+
+function LinkRowActions({ link, onDone }: LinkRowActionsProps) {
   const t = useTranslations('admin.links');
   const { isDisabled, toggleDisabled, remove } = useLinkActionsViewModel(link);
 
@@ -176,6 +185,7 @@ function LinkRowActions({ link, onDeleted }: { link: AdminLink; onDeleted: () =>
         hasReason={!isDisabled}
         successMessage={toggle.successMessage}
         onConfirm={toggleDisabled}
+        onDone={onDone}
       />
       <ConfirmActionDialog
         tooltip={t('delete')}
@@ -199,7 +209,7 @@ function LinkRowActions({ link, onDeleted }: { link: AdminLink; onDeleted: () =>
         hasReason
         successMessage={t('deleted')}
         onConfirm={remove}
-        onDone={onDeleted}
+        onDone={onDone}
       />
     </div>
   );

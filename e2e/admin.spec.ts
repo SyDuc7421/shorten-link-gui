@@ -19,6 +19,8 @@ test('an admin disables a link and it moves from the active filter to the disabl
 
   await expect(page.getByText('Link disabled')).toBeVisible();
   await expect(page.getByRole('row').filter({ hasText: 'abc' })).toHaveCount(0);
+  // The row is gone, so focus moves to the list heading, not to <body>.
+  await expect(page.getByRole('heading', { name: 'All links' })).toBeFocused();
 
   await page.getByRole('combobox', { name: 'Status' }).click();
   await page.getByRole('option', { name: 'Disabled' }).click();
@@ -40,4 +42,15 @@ test('a signed-in non-admin sees a permission state, not the admin area', async 
 test('a signed-out visitor is sent to sign in', async ({ page }) => {
   await page.goto('/admin/users');
   await expect(page).toHaveURL(/\/login$/);
+});
+
+test('the account menu offers the admin area to an admin', async ({ page }) => {
+  await signInAsAdmin(page);
+  await mockAdminApi(page);
+  await page.goto('/');
+
+  await page.getByRole('button', { name: 'Account menu' }).click();
+  await page.getByRole('menuitem', { name: 'Admin' }).click();
+
+  await expect(page).toHaveURL(/\/admin$/);
 });
