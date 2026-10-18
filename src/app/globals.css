@@ -34,6 +34,11 @@
   --input: oklch(0.869 0.022 252.894);
   --ring: oklch(0.511 0.096 186.391);
 
+  /* Chart series: brand teal, then two hues apart from it and from destructive red. */
+  --chart-1: var(--primary);
+  --chart-2: oklch(0.646 0.222 41.116);
+  --chart-3: oklch(0.546 0.17 264);
+
   /* Motion tokens — use these, not ad-hoc durations. */
   --duration-fast: 120ms;
   --duration-base: 200ms;
@@ -63,6 +68,9 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 16%);
   --ring: oklch(0.777 0.152 181.912);
+  --chart-1: var(--primary);
+  --chart-2: oklch(0.769 0.188 70.08);
+  --chart-3: oklch(0.707 0.143 264);
 }
 
 @theme inline {
@@ -87,6 +95,9 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
