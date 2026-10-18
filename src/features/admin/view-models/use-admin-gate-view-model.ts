@@ -25,10 +25,9 @@ export function useAdminGateViewModel(): AdminGateState {
   }, [sessionStatus, router]);
 
   if (sessionStatus !== 'signedIn' || me.status === 'pending') return { status: 'pending' };
-  if (me.status === 'error') {
-    // Signed in but not an (enabled) admin: nothing failed (DESIGN.md §10).
-    if (hasStatus(me.error, 403)) return { status: 'forbidden' };
-    return { status: 'error', retry: () => void me.refetch() };
-  }
+  // Signed in but not an (enabled) admin: nothing failed (DESIGN.md §10).
+  if (hasStatus(me.error, 403)) return { status: 'forbidden' };
+  // A failed re-check keeps an admin's screen; only a failed first check blocks it.
+  if (!me.data) return { status: 'error', retry: () => void me.refetch() };
   return { status: 'allowed' };
 }

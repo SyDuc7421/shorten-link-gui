@@ -26,7 +26,8 @@ export function useUserDetailViewModel(id: string) {
   let state: UserDetailState;
   if (query.status === 'pending') {
     state = { status: 'pending' };
-  } else if (query.status === 'error') {
+  } else if (!query.data) {
+    // Only a failed first load replaces the page; a failed refetch keeps it.
     state = hasStatus(query.error, 404)
       ? { status: 'notFound' }
       : { status: 'error', retry: () => void query.refetch() };

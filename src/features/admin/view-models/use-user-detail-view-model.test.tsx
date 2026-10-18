@@ -53,6 +53,13 @@ describe('useUserDetailViewModel', () => {
     );
   });
 
+  it('keeps the page when a background refetch fails', () => {
+    mockUser({ status: 'error', error: new TypeError('offline'), data: user });
+    expect(renderHook(() => useUserDetailViewModel(user.id)).result.current.state.status).toBe(
+      'success',
+    );
+  });
+
   it('marks the admin’s own account so the view hides disable', () => {
     mockUser({ status: 'success', data: user }, user.id);
     const { state } = renderHook(() => useUserDetailViewModel(user.id)).result.current;

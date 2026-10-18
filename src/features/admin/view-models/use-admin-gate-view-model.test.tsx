@@ -14,6 +14,7 @@ vi.mock('../model/me-api', () => ({ useAdminMe: vi.fn() }));
 
 const router = { replace: vi.fn() };
 const refetch = vi.fn();
+const admin = { id: '1', email: 'admin@example.com', role: 'admin' };
 
 function mock(session: 'loading' | 'signedIn' | 'signedOut', me: Record<string, unknown>) {
   vi.mocked(useSession).mockReturnValue({
@@ -59,8 +60,22 @@ describe('useAdminGateViewModel', () => {
     expect(refetch).toHaveBeenCalledOnce();
   });
 
+  it('keeps an admin in when a background re-check fails', () => {
+    mock('signedIn', { status: 'error', error: new TypeError('offline'), data: admin });
+    expect(renderHook(() => useAdminGateViewModel()).result.current).toEqual({
+      status: 'allowed',
+    });
+  });
+
+  it('locks the area when a re-check says access was revoked', () => {
+    mock('signedIn', { status: 'error', error: new HttpError(403, null), data: admin });
+    expect(renderHook(() => useAdminGateViewModel()).result.current).toEqual({
+      status: 'forbidden',
+    });
+  });
+
   it('lets an admin in', () => {
-    mock('signedIn', { status: 'success' });
+    mock('signedIn', { status: 'success', data: admin });
     expect(renderHook(() => useAdminGateViewModel()).result.current).toEqual({
       status: 'allowed',
     });
