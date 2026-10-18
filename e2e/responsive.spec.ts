@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { ADMIN_ROUTES, mockAdminApi, signInAsAdmin } from './fixtures/admin-api';
+
 /**
  * The supported range. Horizontal overflow at any of these widths is a bug —
  * see DESIGN.md §8.3 for the usual causes.
@@ -11,7 +13,15 @@ const VIEWPORTS = [
 ] as const;
 
 /** Routes to check. Add every page that ships. */
-const ROUTES = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
+const ROUTES = ['/', '/login', '/register', '/forgot-password', '/reset-password', ...ADMIN_ROUTES];
+
+async function open(page: Page, route: string) {
+  if (ADMIN_ROUTES.includes(route)) {
+    await signInAsAdmin(page);
+    await mockAdminApi(page);
+  }
+  await page.goto(route);
+}
 
 async function horizontalOverflow(page: Page) {
   return page.evaluate(() => {
@@ -38,7 +48,7 @@ for (const viewport of VIEWPORTS) {
 
     for (const route of ROUTES) {
       test(`${route} does not scroll horizontally`, async ({ page }) => {
-        await page.goto(route);
+        await open(page, route);
         await page.waitForLoadState('networkidle');
 
         expect(
@@ -50,7 +60,7 @@ for (const viewport of VIEWPORTS) {
       test(`${route} keeps tap targets large enough`, async ({ page }) => {
         test.skip(viewport.width >= 768, 'Touch target minimum applies below md.');
 
-        await page.goto(route);
+        await open(page, route);
         const small: string[] = [];
 
         for (const target of await page.getByRole('button').all()) {

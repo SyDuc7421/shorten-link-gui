@@ -4,6 +4,8 @@ import { getTranslations } from 'next-intl/server';
 import { AccountMenu } from '@/features/auth';
 import { Link } from '@/i18n/navigation';
 
+import { AdminMenuEntry } from './admin-menu-entry';
+
 export async function SiteHeader() {
   const t = await getTranslations('common');
 
@@ -19,7 +21,7 @@ export async function SiteHeader() {
           </span>
           {t('appName')}
         </Link>
-        <AccountMenu />
+        <AccountMenu items={<AdminMenuEntry />} />
       </div>
     </header>
   );

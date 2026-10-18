@@ -17,8 +17,13 @@ import { Link, useRouter } from '@/i18n/navigation';
 
 import { useSession } from '../model/use-session';
 
+interface AccountMenuProps {
+  /** Entries from other features (admin), shown above Sign out. */
+  items?: React.ReactNode;
+}
+
 /** Header slot: sign-in links when signed out, the account menu when signed in. */
-export function AccountMenu() {
+export function AccountMenu({ items }: AccountMenuProps) {
   const t = useTranslations('nav');
   const router = useRouter();
   const { status, email, signOut } = useSession();
@@ -55,6 +60,7 @@ export function AccountMenu() {
           <span className="truncate">{email}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {items}
         <DropdownMenuItem
           onSelect={() => {
             signOut();

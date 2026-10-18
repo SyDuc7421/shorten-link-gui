@@ -20,7 +20,8 @@
     "getStarted": "Get started",
     "signOut": "Sign out",
     "account": "Account menu",
-    "signedInAs": "Signed in as"
+    "signedInAs": "Signed in as",
+    "admin": "Admin"
   },
   "home": {
     "title": "Short links you can <highlight>share and track.</highlight>",
@@ -193,5 +194,181 @@
     "forbiddenUrl": "This URL points to a private or blocked address.",
     "expiryInPast": "Choose a time in the future.",
     "rateLimited": "You are creating links too fast. Wait a minute, then try again."
+  },
+  "admin": {
+    "nav": {
+      "label": "Admin sections",
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "links": "Links",
+      "audit": "Audit log"
+    },
+    "gate": {
+      "forbiddenTitle": "Only admins can open this area",
+      "forbiddenDescription": "Your account does not have admin access. An existing admin can grant it on the server.",
+      "backHome": "Back to your links",
+      "errorTitle": "Could not check your admin access",
+      "errorDescription": "Check your connection and try again."
+    },
+    "status": {
+      "active": "Active",
+      "disabled": "Disabled",
+      "expired": "Expired",
+      "ownerDisabled": "Owner disabled"
+    },
+    "role": {
+      "admin": "Admin",
+      "user": "User"
+    },
+    "list": {
+      "statusLabel": "Status",
+      "allStatuses": "All statuses",
+      "count": "{count, plural, one {# result} other {# results}}",
+      "countMore": "{count, plural, one {First # result} other {First # results}}",
+      "loadMore": "Load more",
+      "loadErrorTitle": "Could not load this list",
+      "loadErrorDescription": "Check your connection and try again."
+    },
+    "confirm": {
+      "reasonLabel": "Reason (optional)",
+      "reasonHint": "Saved in the audit log with this action."
+    },
+    "errors": {
+      "selfDisable": "You cannot disable your own account.",
+      "notFound": "This no longer exists. Reload the page to see the current list.",
+      "forbidden": "Your admin access was removed. Reload the page.",
+      "invalid": "The server did not accept these values. Check them and try again.",
+      "reasonTooLong": "Shorten the reason to 500 characters or fewer. Accented letters and emoji count as more than one.",
+      "network": "Could not reach the server. Check your connection and try again.",
+      "server": "Something went wrong on our side. Try again in a moment."
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "How the service is used. Days are UTC.",
+      "rangeLabel": "Range",
+      "range": "Last {days} days",
+      "totalsLabel": "Totals",
+      "users": "Users",
+      "links": "Links",
+      "clicks": "Clicks",
+      "disabledUsers": "Disabled users",
+      "disabledLinks": "Disabled links",
+      "newInRange": "+{count, number} in the last {days} days",
+      "chartsLabel": "Daily activity",
+      "newUsers": "New users",
+      "newLinks": "New links",
+      "topLinks": "Top links",
+      "topLinksDescription": "Most clicked in the last {days} days.",
+      "code": "Short code",
+      "noClicksTitle": "No clicks in this range",
+      "noClicksDescription": "Links show up here once someone opens them.",
+      "loadErrorTitle": "Could not load the dashboard",
+      "loadErrorDescription": "Check your connection and try again."
+    },
+    "users": {
+      "title": "Users",
+      "description": "Find an account, change its daily quota, or disable it.",
+      "heading": "All users",
+      "searchLabel": "Search by email",
+      "columns": {
+        "email": "Email",
+        "role": "Role",
+        "links": "Links",
+        "quota": "Daily quota",
+        "created": "Joined",
+        "status": "Status"
+      },
+      "emptyTitle": "No users yet",
+      "emptyDescription": "Accounts show up here once people sign up.",
+      "backToUsers": "All users",
+      "notFoundTitle": "This user does not exist",
+      "notFoundDescription": "The link may be wrong. Search for the account in the user list.",
+      "facts": "Account details",
+      "linksToday": "Links today",
+      "linksTodayValue": "{count, number} of {quota, number}",
+      "totalClicks": "Total clicks",
+      "selfNotice": "This is your account. Another admin has to disable it.",
+      "disable": "Disable account",
+      "enable": "Enable account",
+      "disableTitle": "Disable {email}?",
+      "disableDescription": "They are signed out everywhere, cannot sign in or create links, and every link they own stops redirecting.",
+      "enableTitle": "Enable {email}?",
+      "enableDescription": "They can sign in again and their links redirect again, except links an admin disabled one by one.",
+      "disabled": "Account disabled",
+      "enabled": "Account enabled",
+      "quotaTitle": "Daily link quota",
+      "quotaDescription": "How many links this account can create per UTC day.",
+      "quotaLabel": "Links per day",
+      "quotaInvalid": "Enter a whole number from {min, number} to {max, number}.",
+      "quotaSave": "Save quota",
+      "quotaSaved": "Quota updated",
+      "linksHeading": "Links by this user"
+    },
+    "links": {
+      "title": "Links",
+      "description": "Every short link in the service. Disable one to stop it redirecting.",
+      "heading": "All links",
+      "searchLabel": "Search by code or URL",
+      "columns": {
+        "link": "Link",
+        "owner": "Owner",
+        "clicks": "Clicks",
+        "created": "Created",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "emptyTitle": "No links yet",
+      "emptyDescription": "Links show up here once people create them.",
+      "disable": "Disable",
+      "enable": "Enable",
+      "delete": "Delete",
+      "disableTitle": "Disable {code}?",
+      "disableDescription": "The link stops redirecting from the next request on. You can enable it again later.",
+      "disableConfirm": "Disable link",
+      "enableTitle": "Enable {code}?",
+      "enableDescription": "The link redirects again, unless its owner is disabled.",
+      "enableConfirm": "Enable link",
+      "deleteTitle": "Delete {code}?",
+      "deleteDescription": "The link stops redirecting for good. This cannot be undone.",
+      "deleteConfirm": "Delete link",
+      "disabled": "Link disabled",
+      "enabled": "Link enabled",
+      "deleted": "Link deleted"
+    },
+    "audit": {
+      "title": "Audit log",
+      "description": "Every change an admin made, newest first.",
+      "heading": "Entries",
+      "typeLabel": "Target",
+      "allTypes": "All targets",
+      "typeUser": "Users",
+      "typeLink": "Links",
+      "actorFiltered": "Showing one admin’s actions",
+      "clearActor": "Show all admins",
+      "columns": {
+        "time": "Time",
+        "actor": "Admin",
+        "action": "Action",
+        "target": "Target",
+        "details": "Details"
+      },
+      "system": "System",
+      "viewUser": "View user",
+      "quotaChange": "{before, number} → {after, number} per day",
+      "reason": "“{reason}”",
+      "noDetails": "None",
+      "emptyTitle": "No admin actions yet",
+      "emptyDescription": "Disabling, enabling, deleting and quota changes show up here.",
+      "actions": {
+        "userDisable": "Disabled user",
+        "userEnable": "Enabled user",
+        "userQuota": "Changed quota",
+        "linkDisable": "Disabled link",
+        "linkEnable": "Enabled link",
+        "linkDelete": "Deleted link",
+        "adminGrant": "Granted admin",
+        "adminRevoke": "Revoked admin"
+      }
+    }
   }
 }
