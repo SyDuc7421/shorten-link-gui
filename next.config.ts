@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   // Fail the production build on type errors. Never disable this.
   // (Next.js 16 no longer lints during build — `pnpm verify` runs ESLint.)
   typescript: { ignoreBuildErrors: false },
+  experimental: { agentUpgrade: 'security' },
   images: {
     remotePatterns: [
       // { protocol: 'https', hostname: 'cdn.example.com' },
