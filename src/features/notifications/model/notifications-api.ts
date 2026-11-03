@@ -30,10 +30,16 @@ export function useNotifications() {
   });
 }
 
-export function useMarkNotificationRead() {
+/**
+ * `onError` is a hook option, not a `mutate()` option: the popover closes (and
+ * unmounts the caller) right after the click, and `mutate()` callbacks do not
+ * fire after unmount.
+ */
+export function useMarkNotificationRead({ onError }: { onError?: () => void } = {}) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    onError,
     mutationFn: async (id: string) => {
       try {
         await authedHttp<null>(`/api/notifications/${encodeURIComponent(id)}/read`, {

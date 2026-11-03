@@ -79,4 +79,16 @@ describe('useMarkNotificationRead', () => {
     const { result } = renderHook(() => useMarkNotificationRead(), { wrapper });
     await expect(act(() => result.current.mutateAsync('12'))).rejects.toBeInstanceOf(HttpError);
   });
+
+  it('calls onError even after the component that started it unmounted', async () => {
+    vi.mocked(authedHttp).mockRejectedValueOnce(new HttpError(500, null));
+    const onError = vi.fn();
+    const { wrapper } = setup();
+    const { result, unmount } = renderHook(() => useMarkNotificationRead({ onError }), {
+      wrapper,
+    });
+    act(() => result.current.mutate('12'));
+    unmount();
+    await waitFor(() => expect(onError).toHaveBeenCalledOnce());
+  });
 });

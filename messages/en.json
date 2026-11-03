@@ -370,5 +370,22 @@
         "adminRevoke": "Revoked admin"
       }
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "bellLabel": "{count, plural, =0 {Notifications} other {Notifications, # unread}}",
+    "badgeOverflow": "{count}+",
+    "markAllRead": "Mark all as read",
+    "unread": "Unread",
+    "emptyTitle": "All caught up",
+    "emptyDescription": "You will see it here when one of your links is disabled, enabled again or about to expire.",
+    "loadErrorTitle": "Could not load notifications",
+    "loadErrorDescription": "Check your connection and try again.",
+    "loadMore": "Load older",
+    "markFailed": "Could not mark as read. Try again.",
+    "linkDisabled": "An admin disabled your link {code}. It no longer redirects.",
+    "linkEnabled": "An admin enabled your link {code} again. It redirects again.",
+    "linkExpiring": "Your link {code} expires on {date}.",
+    "passwordChanged": "Your password was changed. If this was not you, reset your password now."
   }
 }
