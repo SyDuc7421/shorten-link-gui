@@ -2,6 +2,7 @@ import { Link2 } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
 import { AccountMenu } from '@/features/auth';
+import { NotificationBell } from '@/features/notifications';
 import { Link } from '@/i18n/navigation';
 
 import { AdminMenuEntry } from './admin-menu-entry';
@@ -21,7 +22,10 @@ export async function SiteHeader() {
           </span>
           {t('appName')}
         </Link>
-        <AccountMenu items={<AdminMenuEntry />} />
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <AccountMenu items={<AdminMenuEntry />} />
+        </div>
       </div>
     </header>
   );
